@@ -1,1 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASTC to PNG Converter</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <style>
+        .preview-img {
+            max-width: 100%;
+            max-height: 200px;
+            margin: 0 auto;
+            display: block;
+        }
+        /* Ensure file input is touch-friendly and wraps nicely */
+        .file-input {
+            width: 100%;
+            padding: 0.5rem;
+        }
+        /* Prevent buttons from being too small on mobile */
+        .btn {
+            min-width: 120px;
+            min-height: 44px;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* Center content on mobile */
+        body {
+            padding: 1rem;
+        }
+    </style>
+    <script>
+        function downloadAll() {
+            const links = document.querySelectorAll('.download-btn');
+            links.forEach(link => {
+                link.click();
+            });
+        }
+    </script>
+</head>
+<body class="min-h-screen bg-gray-100 flex flex-col items-center justify-start">
+    <div class="w-full max-w-4xl mx-auto">
+        <h1 class="text-2xl sm:text-3xl font-bold mb-6 text-center">ASTC to PNG Converter</h1>
+        <form method="post" enctype="multipart/form-data" class="mb-6 flex flex-col sm:flex-row gap-4 items-center justify-center">
+            <input 
+                type="file" 
+                name="files" 
+                accept=".astc" 
+                multiple 
+                class="file-input file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-blue-500 file:text-white file:font-semibold hover:file:bg-blue-600 text-sm"
+            >
+            <input 
+                type="submit" 
+                value="Convert" 
+                class="btn py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600 font-semibold"
+            >
+        </form>
+        <form method="post" action="/fetch_id" class="mb-6 flex flex-col sm:flex-row gap-4 items-center justify-center">
+            <input 
+                type="number" 
+                name="item_id" 
+                placeholder="Enter Item ID" 
+                required
+                class="file-input border border-gray-300 rounded px-3 py-2 w-full sm:w-auto"
+            >
+            <input 
+                type="submit" 
+                value="Fetch & Convert" 
+                class="btn py-2 px-4 bg-indigo-500 text-white rounded hover:bg-indigo-600 font-semibold"
+            >
+        </form>
+        {% if error %}
+            <p class="text-red-500 text-center mb-4">{{ error }}</p>
+        {% endif %}
+        {% if results %}
+            <h2 class="text-xl sm:text-2xl font-semibold mb-4 text-center">Conversion Results</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {% for result in results %}
+                    <div class="border p-4 rounded bg-white shadow-sm">
+                        <p class="text-sm font-medium mb-2"><strong>File:</strong> {{ result.filename }}</p>
+                        {% if result.error %}
+                            <p class="text-red-500 text-sm">{{ result.error }}</p>
+                        {% else %}
+                            <img src="data:image/png;base64,{{ result.png_base64 }}" alt="{{ result.png_filename }}" class="preview-img">
+                            <a 
+                                href="data:image/png;base64,{{ result.png_base64 }}" 
+                                download="{{ result.png_filename }}" 
+                                class="download-btn btn inline-block py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600 mt-2 text-center"
+                            >
+                                Download {{ result.png_filename }}
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            {% if zip_available %}
+                <div class="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
+                    <button 
+                        onclick="downloadAll()" 
+                        class="btn py-2 px-4 bg-green-500 text-white rounded hover:bg-green-600 font-semibold"
+                    >
+                        Download All PNGs
+                    </button>
+                    <a 
+                        href="/download_zip" 
+                        class="btn inline-block py-2 px-4 bg-purple-500 text-white rounded hover:bg-purple-600 font-semibold"
+                    >
+                        Download All as Zip
+                    </a>
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+</body>
+</html>
 
