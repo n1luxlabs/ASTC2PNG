@@ -1,0 +1,5 @@
+flask
+Pillow
+gunicorn
+flask-session
+requests

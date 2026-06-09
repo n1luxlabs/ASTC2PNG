@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: astc-to-png
+    env: python
+    plan: free
+    region: oregon
+    buildCommand: |
+      pip install -r requirements.txt
+      echo "Listing bin directory:"
+      ls -l ./bin/ || echo "bin directory not found"
+      if [ -f ./bin/astcenc-avx2 ]; then
+        echo "Setting executable permissions for astcenc-avx2"
+        chmod +x ./bin/astcenc-avx2
+        ls -l ./bin/astcenc-avx2
+        echo "Testing astcenc-avx2 binary"
+        ./bin/astcenc-avx2 -h || echo "Failed to execute astcenc-avx2"
+      else
+        echo "ERROR: astcenc-avx2 binary not found"
+      fi
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    autoDeploy: true
